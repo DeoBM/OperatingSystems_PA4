@@ -127,10 +127,10 @@ void print_sm_uses() {
         	else unusedAmount += itr->dsize ;
 	}
 
-	printf("-------------------------------------- sm_uses --------------------------------------\n") ;
-        printf(" (1) The amount of memory retained by smalloc so far: %d\n", pageCount * getpagesize()) ;
-	printf(" (2) The amount of memory allocated by smalloc at this moment: %d\n", busyAmount) ;
-        printf(" (3) The amount of memory retained by smalloc but not currently allocated: %d\n", unusedAmount) ;
-	printf("-------------------------------------------------------------------------------------\n") ;
+	fprintf(stderr, "-------------------------------------- sm_uses --------------------------------------\n") ;
+        fprintf(stderr, " (1) The amount of memory retained by smalloc so far: %d\n", pageCount * getpagesize()) ;
+	fprintf(stderr, " (2) The amount of memory allocated by smalloc at this moment: %d\n", busyAmount) ;
+        fprintf(stderr, " (3) The amount of memory retained by smalloc but not currently allocated: %d\n", unusedAmount) ;
+	fprintf(stderr, "-------------------------------------------------------------------------------------\n") ;
 
 }
