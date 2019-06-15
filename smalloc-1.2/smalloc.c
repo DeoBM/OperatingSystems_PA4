@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "smalloc.h" 
 
+void makeUnusedContainer() ;
+
 sm_container_ptr sm_first = 0x0 ;
 sm_container_ptr sm_last = 0x0 ;
 sm_container_ptr sm_unused_containers = 0x0 ;
@@ -57,7 +59,7 @@ void * smalloc(size_t size)
 		else if (size + sizeof(sm_container_t) < itr->dsize) {
 			// a hole large enought to split 
 			if (hole == 0x0) hole = itr ;
-           		 else if (itr->dsize < hole->dsize) hole = itr ;
+           		else if (itr->dsize < hole->dsize) hole = itr ;
 		}
 	}
 	if (hole == 0x0) {
@@ -80,6 +82,7 @@ void * smalloc(size_t size)
 	sm_container_split(hole, size) ;
 	hole->dsize = size ;
 	hole->status = Busy ;
+	makeUnusedContainer() ;
 	return hole->data ;
 }
 
@@ -94,6 +97,7 @@ void sfree(void * p)
 			break ;
 		}
 	}
+	makeUnusedContainer() ;
 }
 
 void print_sm_containers()
@@ -133,4 +137,31 @@ void print_sm_uses() {
         fprintf(stderr, " (3) The amount of memory retained by smalloc but not currently allocated: %d\n", unusedAmount) ;
 	fprintf(stderr, "-------------------------------------------------------------------------------------\n") ;
 
+}
+
+void makeUnusedContainer() {
+	sm_container_ptr itr = 0x0 ;
+        sm_container_ptr previous = 0x0 ;
+        sm_unused_containers = 0x0 ;
+	
+        for (itr = sm_first ; itr != 0x0 ; itr = itr->next) {
+		if (sm_unused_containers == 0x0 && itr->status == Unused) {
+                        sm_unused_containers = itr ;
+                	previous = itr ;
+
+       		 } else if (itr->status == Unused) {
+            		previous->next_unused = itr ;
+            		previous = itr ;
+	        }
+	}
+
+	/*
+	int i = 0 ;
+	printf("==================== sm_unused_containers ====================\n") ;
+	for (itr = sm_unused_containers ; itr != 0x0 ; itr = itr->next_unused, i++) {
+		printf("%3d:%p:%s", i, itr->data, itr->status == Unused ? "Unused" : "  Busy") ;
+		printf("%8d\n", (int) itr->dsize) ;
+	}
+	printf("===============================================================\n") ;
+	*/
 }
