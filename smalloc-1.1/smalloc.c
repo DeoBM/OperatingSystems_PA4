@@ -56,8 +56,8 @@ void * smalloc(size_t size)
 		}
 		else if (size + sizeof(sm_container_t) < itr->dsize) {
 			// a hole large enought to split 
-			hole = itr ;
-			break ; 
+			if (hole == 0x0) hole = itr ;
+           		 else if (itr->dsize < hole->dsize) hole = itr ;
 		}
 	}
 	if (hole == 0x0) {
@@ -123,7 +123,7 @@ void print_sm_uses() {
 	int unusedAmount = 0 ;
 
 	for (itr = sm_first ; itr != 0x0 ; itr = itr->next) {
-		if(itr->status == Busy) busyAmount += itr->dsize ;
+		if (itr->status == Busy) busyAmount += itr->dsize ;
         	else unusedAmount += itr->dsize ;
 	}
 
