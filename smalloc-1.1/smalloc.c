@@ -5,6 +5,7 @@
 sm_container_ptr sm_first = 0x0 ;
 sm_container_ptr sm_last = 0x0 ;
 sm_container_ptr sm_unused_containers = 0x0 ;
+int pageCount = 0;
 
 void sm_container_split(sm_container_ptr hole, size_t size)
 {
@@ -27,6 +28,7 @@ void * sm_retain_more_memory(int size)
 	int n_pages = 0 ;
 
 	n_pages = (sizeof(sm_container_t) + size + sizeof(sm_container_t)) / pagesize  + 1 ;
+    pageCount += n_pages;
 	hole = (sm_container_ptr) sbrk(n_pages * pagesize) ;
 	if (hole == 0x0)
 		return 0x0 ;
@@ -112,5 +114,23 @@ void print_sm_containers()
 		printf("\n") ;
 	}
 	printf("=======================================================\n") ;
+
+}
+
+void print_sm_uses() {
+	sm_container_ptr itr ;
+	int busyAmount = 0 ;
+	int unusedAmount = 0 ;
+
+	for (itr = sm_first ; itr != 0x0 ; itr = itr->next) {
+		if(itr->status == Busy) busyAmount += itr->dsize ;
+        	else unusedAmount += itr->dsize ;
+	}
+
+	printf("-------------------------------------- sm_uses --------------------------------------\n") ;
+        printf(" (1) The amount of memory retained by smalloc so far: %d\n", pageCount * getpagesize()) ;
+	printf(" (2) The amount of memory allocated by smalloc at this moment: %d\n", busyAmount) ;
+        printf(" (3) The amount of memory retained by smalloc but not currently allocated: %d\n", unusedAmount) ;
+	printf("-------------------------------------------------------------------------------------\n") ;
 
 }
