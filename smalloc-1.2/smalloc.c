@@ -97,6 +97,38 @@ void sfree(void * p)
 			break ;
 		}
 	}
+        
+	itr = 0x0 ;
+	sm_container_ptr previous = 0x0 ;
+        sm_container_ptr curr = 0x0 ;
+
+        for (itr = sm_first ; itr != 0x0 ; itr = itr->next) {
+                if (itr->status == Unused) {
+                        previous = curr ;
+                	curr = itr ;
+          		
+			if(curr->next != 0x0) {	
+				if(curr->status == Unused && curr->next->status == Unused) { 
+					sm_container_ptr temp = curr ;
+					temp->status = Unused ;
+
+            		  		if(curr->status == Unused && curr->next->status == Unused) {
+       						if (previous != 0x0) previous->next = temp ;
+						temp->dsize = curr->dsize + curr->next->dsize + sizeof(sm_container_t) ;
+               					temp->next = curr->next->next ;
+               					temp->data = curr->data ;
+  			              		if (previous != 0x0) {
+							curr = previous ;
+                					itr = previous ;
+						} else {
+							itr = curr ;
+						}
+					}
+            			}
+        		}
+		}
+	}	
+
 	makeUnusedContainer() ;
 }
 
